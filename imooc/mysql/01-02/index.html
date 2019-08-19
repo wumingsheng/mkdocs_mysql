@@ -670,6 +670,13 @@
 <div class="codehilite"><pre><span></span><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">t1</span> <span class="k">where</span> <span class="n">b</span><span class="o">=</span><span class="mi">100</span><span class="p">;</span>
 </pre></div>
 
+<div class="codehilite"><pre><span></span>+----+-------------+-------+------------+------+---------------+-------+---------+-------+------+----------+--------+
+| id | select_type | table | partitions | type | possible_keys | key   | key_len | ref   | rows | filtered | Extra  |
++----+-------------+-------+------------+------+---------------+-------+---------+-------+------+----------+--------+
+| 1  | SIMPLE      | t1    | &lt;null&gt;     | ref  | idx_b         | idx_b | 5       | const | 1    | 100.0    | &lt;null&gt; |
++----+-------------+-------+------------+------+---------------+-------+---------+-------+------+----------+--------+
+</pre></div>
+
 <p>Explain 的结果各字段解释如下：</p>
 <p>加粗的列为需要重点关注的项。</p>
 <table>
