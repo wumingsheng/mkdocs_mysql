@@ -9,8 +9,12 @@ remote_branch: gh-pages
 copyright: 'Copyright &copy; 2019 Square, Inc.'
 
 nav: 
-  - Home: index.md
-  - About: about.md
+  # - Home: index.md
+  # - About: about.md
+  - 深入理解MYSQL:
+    - 1. SQL优化:
+      - 01-开篇词: imooc/mysql/01-01.md
+      - 02-快速学会分析SQL执行效率（上）: imooc/mysql/01-02.md
 # theme: mkdocs
 
 # pip install mkdocs-material
@@ -50,6 +54,7 @@ markdown_extensions:
   - pymdownx.smartsymbols
   - pymdownx.superfences
   - tables
+  - pymdownx.critic
 
 
 extra:
