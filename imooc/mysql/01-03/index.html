@@ -376,12 +376,25 @@
     2. trace 分析 SQL 优化器
   </a>
   
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mysql" title="知识点一：MySQL 常见排序模式：" class="md-nav__link">
+    知识点一：MySQL 常见排序模式：
+  </a>
+  
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#_1" title="知识点二：优化器在估计符合条件的行数时有两个选择：" class="md-nav__link">
     知识点二：优化器在估计符合条件的行数时有两个选择：
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -491,12 +504,25 @@
     2. trace 分析 SQL 优化器
   </a>
   
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mysql" title="知识点一：MySQL 常见排序模式：" class="md-nav__link">
+    知识点一：MySQL 常见排序模式：
+  </a>
+  
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#_1" title="知识点二：优化器在估计符合条件的行数时有两个选择：" class="md-nav__link">
     知识点二：优化器在估计符合条件的行数时有两个选择：
   </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -942,7 +968,7 @@
 </ul>
 <div class="admonition abstract">
 <p class="admonition-title">知识扩展</p>
-<p>** 知识点一：MySQL 常见排序模式：**</p>
+<h3 id="mysql">知识点一：MySQL 常见排序模式：<a class="headerlink" href="#mysql" title="Permanent link">&para;</a></h3>
 <ol>
 <li>&lt; sort_key, rowid &gt;双路排序（又叫回表排序模式）：是首先根据相应的条件取出相应的排序字段和可以直接定位行数据的行 ID，然后在 sort buffer 中进行排序，排序完后需要再次取回其它需要的字段；</li>
 <li>&lt; sort_key, additional_fields &gt;单路排序：是一次性取出满足条件行的所有字段，然后在sort buffer中进行排序；</li>
@@ -952,7 +978,7 @@
 <p>第二种模式相对第一种模式，避免了二次回表，可以理解为用空间换时间。由于 sort buffer 有限，如果需要查询的数据比较大的话，会增加磁盘排序时间，效率可能比第一种方式更低。</p>
 <p>MySQL 提供了一个参数：max_length_for_sort_data，当“排序的键值对大小” &gt; max_length_for_sort_data 时，MySQL 认为磁盘外部排序的 IO 效率不如回表的效率，会选择第一种排序模式；否则，会选择第二种模式。</p>
 <p>第三种模式主要解决变长字符数据存储空间浪费的问题。</p>
-<h2 id="_1">知识点二：优化器在估计符合条件的行数时有两个选择：<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h2>
+<h3 id="_1">知识点二：优化器在估计符合条件的行数时有两个选择：<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>index diver：dive 到 index 中利用索引完成元组数的估算；特点是速度慢，但可以得到精确的值；</li>
 <li>index statistics：使用索引的统计数值，进行估算；特点是速度快，但是值不一定准确。</li>
