@@ -1,0 +1,986 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+        <meta name="description" content="An HTTP & HTTP/2 client for Android and Java applications">
+      
+      
+      
+        <meta name="author" content="woms,wumingsheng.">
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../../../images/icon-square.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.0">
+    
+    
+      
+        <title>02-快速学会分析SQL执行效率（上） - mysql</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/application.0284f74d.css">
+      
+        <link rel="stylesheet" href="../../../assets/stylesheets/application-palette.01803549.css">
+      
+      
+        
+        
+        <meta name="theme-color" content="#009688">
+      
+    
+    
+      <script src="../../../assets/javascripts/modernizr.74668098.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
+    
+    
+      <link rel="stylesheet" href="../../../css/app.css">
+    
+    
+      
+    
+    
+  </head>
+  
+    
+    
+    <body dir="ltr" data-md-color-primary="teal" data-md-color-accent="white">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#1-sql" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="../../.." title="mysql" class="md-header-nav__button md-logo">
+          
+            <img src="../../../images/icon-square.png" width="24" height="24">
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              mysql
+            </span>
+            <span class="md-header-nav__topic">
+              
+                02-快速学会分析SQL执行效率（上）
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/wumingsheng/mkdocs_mysql/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    mkdocs_mysql
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="../../.." title="mysql" class="md-nav__button md-logo">
+      
+        <img src="../../../images/icon-square.png" width="48" height="48">
+      
+    </a>
+    mysql
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/wumingsheng/mkdocs_mysql/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    mkdocs_mysql
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-1" type="checkbox" id="nav-1" checked>
+    
+    <label class="md-nav__link" for="nav-1">
+      深入理解MYSQL
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-1">
+        深入理解MYSQL
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-1-1" type="checkbox" id="nav-1-1" checked>
+    
+    <label class="md-nav__link" for="nav-1-1">
+      1. SQL优化
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="2">
+      <label class="md-nav__title" for="nav-1-1">
+        1. SQL优化
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../01-01/" title="01-开篇词" class="md-nav__link">
+      01-开篇词
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        02-快速学会分析SQL执行效率（上）
+      </label>
+    
+    <a href="./" title="02-快速学会分析SQL执行效率（上）" class="md-nav__link md-nav__link--active">
+      02-快速学会分析SQL执行效率（上）
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-sql" title="1. 定位慢 SQL" class="md-nav__link">
+    1. 定位慢 SQL
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" title="1.1 通过慢查询日志" class="md-nav__link">
+    1.1 通过慢查询日志
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-show-processlist" title="1.2 通过 show processlist" class="md-nav__link">
+    1.2 通过 show processlist
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-explain" title="2. 使用 explain 分析慢查询" class="md-nav__link">
+    2. 使用 explain 分析慢查询
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-select_type" title="2.1 select_type" class="md-nav__link">
+    2.1 select_type
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-type" title="2.2 type" class="md-nav__link">
+    2.2 type
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-extra" title="2.3 Extra" class="md-nav__link">
+    2.3 Extra
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" title="3 总结" class="md-nav__link">
+    3 总结
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-sql" title="1. 定位慢 SQL" class="md-nav__link">
+    1. 定位慢 SQL
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" title="1.1 通过慢查询日志" class="md-nav__link">
+    1.1 通过慢查询日志
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-show-processlist" title="1.2 通过 show processlist" class="md-nav__link">
+    1.2 通过 show processlist
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-explain" title="2. 使用 explain 分析慢查询" class="md-nav__link">
+    2. 使用 explain 分析慢查询
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-select_type" title="2.1 select_type" class="md-nav__link">
+    2.1 select_type
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-type" title="2.2 type" class="md-nav__link">
+    2.2 type
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-extra" title="2.3 Extra" class="md-nav__link">
+    2.3 Extra
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" title="3 总结" class="md-nav__link">
+    3 总结
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/wumingsheng/mkdocs_mysql/edit/master/docs/imooc/mysql/01-02.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                  <h1>02-快速学会分析SQL执行效率（上）</h1>
+                
+                <p>从开篇词我们了解到，本专栏首先会一起讨论一下 SQL 优化，而优化 SQL 的前提是能定位到慢 SQL 并对其进行分析，因此在专栏的开始，会跟大家分享如何定位慢查询和如何分析 SQl 执行效率。在前面两节，会用一些简单的例子让大家学会这些分析技巧。</p>
+<p>在工作中可能会遇到某个新功能在测试时需要很久才返回结果，这时就应该分析是不是慢查询导致的。如果确实有慢查询，又应该怎么去分析 SQL 执行效率呢？这一篇文章我们就来学习怎么找到慢查询和怎么分析 SQL 执行效率。</p>
+<h2 id="1-sql">1. 定位慢 SQL<a class="headerlink" href="#1-sql" title="Permanent link">&para;</a></h2>
+<p>当我们实际工作中，碰到某个功能或者某个接口需要很久才能返回结果，我们就应该去确定是不是慢查询导致的。定位慢 SQL 有如下两种解决方案：</p>
+<ins class="critic block">
+<ol>
+<li>查看慢查询日志确定已经执行完的慢查询</li>
+<li>show processlist 查看正在执行的慢查询</li>
+</ol>
+</ins>
+<p>我们一起来了解下这两种方法的使用场景和使用技巧吧！</p>
+<h3 id="11">1.1 通过慢查询日志<a class="headerlink" href="#11" title="Permanent link">&para;</a></h3>
+<p>如果需要定位到慢查询，一般的方法是通过慢查询日志来查询的，MySQL 的慢查询日志用来记录在 MySQL 中响应时间超过参数 <code>long_query_time</code>（单位秒，默认值 10）设置的值并且扫描记录数不小于 <code>min_examined_row_limit</code>（默认值0）的语句，能够帮我们找到执行完的慢查询，方便我们对这些 SQL 进行优化。</p>
+<div class="admonition info">
+<p class="admonition-title">知识扩展</p>
+<p>默认情况下，慢查询日志中不会记录管理语句，可通过设置 log_slow_admin_statements = on 让管理语句中的慢查询也会记录到慢查询日志中。</p>
+<p>默认情况下，也不会记录查询时间不超过 long_query_time 但是不使用索引的语句，可通过配置log_queries_not_using_indexes = on 让不使用索引的 SQL 都被记录到慢查询日志中（即使查询时间没超过 long_query_time 配置的值）。</p>
+</div>
+<p>如果需要使用慢查询日志，一般分为四步：开启慢查询日志、设置慢查询阀值、确定慢查询日志路径、确定慢查询日志的文件名。下面我们来学习下:</p>
+<p>首先开启慢查询日志，由参数 slow_query_log 决定是否开启，在 MySQL 命令行下输入下面的命令：</p>
+<div class="codehilite"><pre><span></span><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">set</span> <span class="k">global</span> <span class="n">slow_query_log</span> <span class="o">=</span> <span class="k">on</span><span class="p">;</span>
+
+<span class="n">Query</span> <span class="n">OK</span><span class="p">,</span> <span class="mi">0</span> <span class="k">rows</span> <span class="n">affected</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+</pre></div>
+
+<p>默认环境下，慢查询日志是关闭的。</p>
+<p>设置慢查询时间阀值</p>
+<div class="codehilite"><pre><span></span><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">set</span> <span class="k">global</span> <span class="n">long_query_time</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+
+<span class="n">Query</span> <span class="n">OK</span><span class="p">,</span> <span class="mi">0</span> <span class="k">rows</span> <span class="n">affected</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+</pre></div>
+
+<div class="admonition question">
+<p class="admonition-title">MySQL 中 long_query_time 的值如何确定呢？</p>
+<p>线上业务一般建议把 long_query_time 设置为 1 秒，如果某个业务的 MySQL 要求比较高的 QPS，可设置慢查询为 0.1 秒。发现慢查询及时优化或者提醒开发改写。</p>
+<p>一般测试环境建议 long_query_time 设置的阀值比生产环境的小，比如生产环境是 1 秒，则测试环境建议配置成 0.5 秒。便于在测试环境及时发现一些效率低的 SQL。</p>
+<p>甚至某些重要业务测试环境 long_query_time 可以设置为 0，以便记录所有语句。并留意慢查询日志的输出，上线前的功能测试完成后，分析慢查询日志每类语句的输出，重点关注 Rows_examined（语句执行期间从存储引擎读取的行数），提前优化。</p>
+</div>
+<p>确定慢查询日志路径</p>
+<p>慢查询日志的路径默认是 MySQL 的数据目录</p>
+<div class="codehilite"><pre><span></span><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="k">global</span> <span class="n">variables</span> <span class="k">like</span> <span class="ss">&quot;datadir&quot;</span><span class="p">;</span>
+
+<span class="o">+</span><span class="c1">---------------+------------------------+</span>
+<span class="o">|</span> <span class="n">Variable_name</span> <span class="o">|</span> <span class="n">Value</span>                  <span class="o">|</span>
+<span class="o">+</span><span class="c1">---------------+------------------------+</span>
+<span class="o">|</span> <span class="n">datadir</span>       <span class="o">|</span> <span class="o">/</span><span class="k">data</span><span class="o">/</span><span class="n">mysql</span><span class="o">/</span><span class="k">data</span><span class="o">/</span><span class="mi">3306</span><span class="o">/</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">---------------+------------------------+</span>
+
+<span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+</pre></div>
+
+<p>确定慢查询日志的文件名</p>
+<div class="codehilite"><pre><span></span><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="k">global</span> <span class="n">variables</span> <span class="k">like</span> <span class="ss">&quot;slow_query_log_file&quot;</span><span class="p">;</span>
+
+<span class="o">+</span><span class="c1">---------------------+----------------+</span>
+<span class="o">|</span> <span class="n">Variable_name</span>       <span class="o">|</span> <span class="n">Value</span>          <span class="o">|</span>
+<span class="o">+</span><span class="c1">---------------------+----------------+</span>
+<span class="o">|</span> <span class="n">slow_query_log_file</span> <span class="o">|</span> <span class="n">mysql</span><span class="o">-</span><span class="n">slow</span><span class="p">.</span><span class="n">log</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">---------------------+----------------+</span>
+
+<span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+</pre></div>
+
+<p>根据上面的查询结果，可以直接查看 /data/mysql/data/3306/mysql-slow.log 文件获取已经执行完的慢查询</p>
+<div class="codehilite"><pre><span></span><span class="p">[</span><span class="n">root</span><span class="o">@</span><span class="n">mysqltest</span> <span class="o">~</span><span class="p">]</span><span class="o">#</span> <span class="n">tail</span> <span class="o">-</span><span class="n">n5</span> <span class="o">/</span><span class="k">data</span><span class="o">/</span><span class="n">mysql</span><span class="o">/</span><span class="k">data</span><span class="o">/</span><span class="mi">3306</span><span class="o">/</span><span class="n">mysql</span><span class="o">-</span><span class="n">slow</span><span class="p">.</span><span class="n">log</span>
+
+<span class="n">Time</span><span class="p">:</span> <span class="mi">2019</span><span class="o">-</span><span class="mi">05</span><span class="o">-</span><span class="mi">21</span><span class="n">T09</span><span class="p">:</span><span class="mi">15</span><span class="p">:</span><span class="mi">06</span><span class="p">.</span><span class="mi">255554</span><span class="o">+</span><span class="mi">08</span><span class="p">:</span><span class="mi">00</span>
+
+<span class="k">User</span><span class="o">@</span><span class="k">Host</span><span class="p">:</span> <span class="n">root</span><span class="p">[</span><span class="n">root</span><span class="p">]</span> <span class="o">@</span> <span class="n">localhost</span> <span class="p">[]</span>  <span class="n">Id</span><span class="p">:</span> <span class="mi">8591152</span>
+
+<span class="n">Query_time</span><span class="p">:</span> <span class="mi">10</span><span class="p">.</span><span class="mi">000260</span>  <span class="n">Lock_time</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">000000</span> <span class="n">Rows_sent</span><span class="p">:</span> <span class="mi">1</span>  <span class="n">Rows_examined</span><span class="p">:</span> <span class="mi">0</span>
+
+<span class="k">SET</span> <span class="k">timestamp</span><span class="o">=</span><span class="mi">1558401306</span><span class="p">;</span>
+<span class="k">select</span> <span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">);</span>
+</pre></div>
+
+<p>这里对上方的执行结果详细描述一下：</p>
+<ul>
+<li>tail -n5：只查看慢查询文件的最后5行</li>
+<li>Time：慢查询发生的时间</li>
+<li>User@Host：客户端用户和IP</li>
+<li>Query_time：查询时间</li>
+<li>Lock_time：等待表锁的时间</li>
+<li>Rows_sent：语句返回的行数</li>
+<li>Rows_examined：语句执行期间从存储引擎读取的行数</li>
+</ul>
+<p>上面这种方式是用系统自带的慢查询日志查看的，如果觉得系统自带的慢查询日志不方便查看，小伙伴们可以使用 pt-query-digest 或者 mysqldumpslow 等工具对慢查询日志进行分析，由于本节重点是找到慢查询，这里就不一一示例了。</p>
+<h3 id="12-show-processlist">1.2 通过 show processlist<a class="headerlink" href="#12-show-processlist" title="Permanent link">&para;</a></h3>
+<p>有时慢查询正在执行，已经导致数据库负载偏高了，而由于慢查询还没执行完，因此慢查询日志还看不到任何语句。此时可以使用 show processlist 命令判断正在执行的慢查询。show processlist 显示哪些线程正在运行。如果有 PROCESS 权限，则可以看到所有线程。否则，只能看到当前会话的线程。</p>
+<div class="admonition info">
+<p class="admonition-title">知识扩展</p>
+<p>如果不使用 FULL 关键字，在 info 字段中只显示每个语句的前 100 个字符，如果想看语句的全部内容可以使用 full 修饰（show full processlist）。</p>
+</div>
+<p>执行结果如下：</p>
+<div class="codehilite"><pre><span></span><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">processlist</span><span class="err">\</span><span class="k">G</span><span class="o">`</span>
+
+<span class="o">`</span><span class="p">......</span><span class="o">`</span>
+
+<span class="o">`***************************</span> <span class="mi">10</span><span class="p">.</span> <span class="k">row</span> <span class="o">***************************`</span>
+
+     <span class="o">`</span><span class="n">Id</span><span class="p">:</span> <span class="mi">7651833</span><span class="o">`</span>
+
+   <span class="o">`</span><span class="k">User</span><span class="p">:</span> <span class="n">one</span><span class="o">`</span>
+
+   <span class="o">`</span><span class="k">Host</span><span class="p">:</span> <span class="mi">192</span><span class="p">.</span><span class="mi">168</span><span class="p">.</span><span class="mi">1</span><span class="p">.</span><span class="mi">251</span><span class="p">:</span><span class="mi">52154</span><span class="o">`</span>
+
+     <span class="o">`</span><span class="n">db</span><span class="p">:</span> <span class="n">ops</span><span class="o">`</span>
+
+<span class="o">`</span><span class="n">Command</span><span class="p">:</span> <span class="n">Query</span><span class="o">`</span>
+
+   <span class="o">`</span><span class="n">Time</span><span class="p">:</span> <span class="mi">3</span><span class="o">`</span>
+
+  <span class="o">`</span><span class="k">State</span><span class="p">:</span> <span class="k">User</span> <span class="n">sleep</span><span class="o">`</span>
+
+   <span class="o">`</span><span class="n">Info</span><span class="p">:</span> <span class="k">select</span> <span class="n">sleep</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">`</span>
+
+<span class="o">`</span><span class="p">......</span><span class="o">`</span>
+
+<span class="o">`</span><span class="mi">10</span> <span class="k">rows</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span><span class="o">`</span>
+</pre></div>
+
+<p>这里对上面结果解释一下：</p>
+<ul>
+<li>Time：表示执行时间</li>
+<li>Info：表示 SQL 语句</li>
+</ul>
+<p>我们这里可以通过它的执行时间（Time）来判断是否是慢 SQL。</p>
+<h2 id="2-explain">2. 使用 explain 分析慢查询<a class="headerlink" href="#2-explain" title="Permanent link">&para;</a></h2>
+<p>分析 SQL 执行效率是优化 SQL 的重要手段，通过上面讲的两种方法，定位到慢查询语句后，我们就要开始分析 SQL 执行效率了，子曾经曰过：“工欲善其事，必先利其器”，我们可以通过 explain、show profile 和 trace 等诊断工具来分析慢查询。本节先讲解 explain 的使用，在下节将分享 show profile 和 trace 的使用。</p>
+<p>Explain 可以获取 MySQL 中 SQL 语句的执行计划，比如语句是否使用了关联查询、是否使用了索引、扫描行数等。可以帮我们选择更好地索引和写出更优的 SQL 。使用方法：在查询语句前面加上 explain 运行就可以了。</p>
+<p>这也是分析 SQL 时最常用的，也是作者最推荐的一种分析慢查询的方式。下面我们来看下示例~~</p>
+<p>为了便于理解，先创建两张测试表（方便第 1、2 节实验使用），建表及数据写入语句如下：</p>
+<div class="codehilite"><pre><span></span><span class="k">CREATE</span> <span class="k">DATABASE</span> <span class="n">muke</span><span class="p">;</span>           <span class="cm">/* 创建测试使用的database，名为muke */</span>
+<span class="n">use</span> <span class="n">muke</span><span class="p">;</span>                       <span class="cm">/* 使用muke这个database */</span>
+<span class="k">drop</span> <span class="k">table</span> <span class="k">if</span> <span class="k">exists</span> <span class="n">t1</span><span class="p">;</span>        <span class="cm">/* 如果表t1存在则删除表t1 */</span>
+
+<span class="k">CREATE</span> <span class="k">TABLE</span> <span class="o">`</span><span class="n">t1</span><span class="o">`</span> <span class="p">(</span>             <span class="cm">/* 创建表t1 */</span>
+  <span class="o">`</span><span class="n">id</span><span class="o">`</span> <span class="nb">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="n">auto_increment</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">a</span><span class="o">`</span> <span class="nb">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">b</span><span class="o">`</span> <span class="nb">int</span><span class="p">(</span><span class="mi">11</span><span class="p">)</span> <span class="k">DEFAULT</span> <span class="k">NULL</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">create_time</span><span class="o">`</span> <span class="n">datetime</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="k">CURRENT_TIMESTAMP</span> <span class="k">COMMENT</span> <span class="s1">&#39;记录创建时间&#39;</span><span class="p">,</span>
+  <span class="o">`</span><span class="n">update_time</span><span class="o">`</span> <span class="n">datetime</span> <span class="k">NOT</span> <span class="k">NULL</span> <span class="k">DEFAULT</span> <span class="k">CURRENT_TIMESTAMP</span> <span class="k">ON</span> <span class="k">UPDATE</span> <span class="k">CURRENT_TIMESTAMP</span> <span class="k">COMMENT</span> <span class="s1">&#39;记录更新时间&#39;</span><span class="p">,</span>
+  <span class="k">PRIMARY</span> <span class="k">KEY</span> <span class="p">(</span><span class="o">`</span><span class="n">id</span><span class="o">`</span><span class="p">),</span>
+  <span class="k">KEY</span> <span class="o">`</span><span class="n">idx_a</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">a</span><span class="o">`</span><span class="p">),</span>
+  <span class="k">KEY</span> <span class="o">`</span><span class="n">idx_b</span><span class="o">`</span> <span class="p">(</span><span class="o">`</span><span class="n">b</span><span class="o">`</span><span class="p">)</span>
+<span class="p">)</span> <span class="n">ENGINE</span><span class="o">=</span><span class="n">InnoDB</span> <span class="k">DEFAULT</span> <span class="n">CHARSET</span><span class="o">=</span><span class="n">utf8mb4</span><span class="p">;</span>    
+
+<span class="k">drop</span> <span class="k">procedure</span> <span class="k">if</span> <span class="k">exists</span> <span class="n">insert_t1</span><span class="p">;</span> <span class="cm">/* 如果存在存储过程insert_t1，则删除 */</span>
+<span class="k">delimiter</span> <span class="p">;;</span>
+<span class="k">create</span> <span class="k">procedure</span> <span class="n">insert_t1</span><span class="p">()</span>        <span class="cm">/* 创建存储过程insert_t1 */</span>
+<span class="k">begin</span>
+  <span class="k">declare</span> <span class="n">i</span> <span class="nb">int</span><span class="p">;</span>                    <span class="cm">/* 声明变量i */</span>
+  <span class="k">set</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>                          <span class="cm">/* 设置i的初始值为1 */</span>
+  <span class="n">while</span><span class="p">(</span><span class="n">i</span><span class="o">&lt;=</span><span class="mi">1000</span><span class="p">)</span><span class="k">do</span>                  <span class="cm">/* 对满足i&lt;=1000的值进行while循环 */</span>
+    <span class="k">insert</span> <span class="k">into</span> <span class="n">t1</span><span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="k">values</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">);</span> <span class="cm">/* 写入表t1中a、b两个字段，值都为i当前的值 */</span>
+    <span class="k">set</span> <span class="n">i</span><span class="o">=</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>                      <span class="cm">/* 将i加1 */</span>
+  <span class="k">end</span> <span class="n">while</span><span class="p">;</span>
+<span class="k">end</span><span class="p">;;</span>
+<span class="k">delimiter</span> <span class="p">;</span>                 <span class="cm">/* 创建批量写入1000条数据到表t1的存储过程insert_t1 */</span>
+<span class="k">call</span> <span class="n">insert_t1</span><span class="p">();</span>           <span class="cm">/* 运行存储过程insert_t1 */</span>
+
+<span class="k">drop</span> <span class="k">table</span> <span class="k">if</span> <span class="k">exists</span> <span class="n">t2</span><span class="p">;</span>    <span class="cm">/* 如果表t2存在则删除表t2 */</span>
+<span class="k">create</span> <span class="k">table</span> <span class="n">t2</span> <span class="k">like</span> <span class="n">t1</span><span class="p">;</span>    <span class="cm">/* 创建表t2，表结构与t1一致 */</span>
+<span class="k">insert</span> <span class="k">into</span> <span class="n">t2</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">t1</span><span class="p">;</span>   <span class="cm">/* 将表t1的数据导入到t2 */</span>
+</pre></div>
+
+<p>下面尝试使用 explain 分析一条 SQL，例子如下：</p>
+<div class="codehilite"><pre><span></span><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">t1</span> <span class="k">where</span> <span class="n">b</span><span class="o">=</span><span class="mi">100</span><span class="p">;</span>
+</pre></div>
+
+<p>Explain 的结果各字段解释如下：</p>
+<p>加粗的列为需要重点关注的项。</p>
+<table>
+<thead>
+<tr>
+<th>列名</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>查询编号</td>
+</tr>
+<tr>
+<td>select_type</td>
+<td>查询类型：显示本行是简单还是复杂查询</td>
+</tr>
+<tr>
+<td>table</td>
+<td>涉及到的表</td>
+</tr>
+<tr>
+<td>partitions</td>
+<td>匹配的分区：查询将匹配记录所在的分区。仅当使用 partition 关键字时才显示该列。对于非分区表，该值为 NULL</td>
+</tr>
+<tr>
+<td>type</td>
+<td>本次查询的表连接类型</td>
+</tr>
+<tr>
+<td>possible_keys</td>
+<td>可能选择的索引</td>
+</tr>
+<tr>
+<td>key</td>
+<td>实际选择的索引</td>
+</tr>
+<tr>
+<td>key_len</td>
+<td>被选择的索引长度：一般用于判断联合索引有多少列被选择了</td>
+</tr>
+<tr>
+<td>ref</td>
+<td>与索引比较的列</td>
+</tr>
+<tr>
+<td>rows</td>
+<td>预计需要扫描的行数，对 InnoDB 来说，这个值是估值，并不一定准确</td>
+</tr>
+<tr>
+<td>filtered</td>
+<td>按条件筛选的行的百分比</td>
+</tr>
+<tr>
+<td>Extra</td>
+<td>附加信息</td>
+</tr>
+</tbody>
+</table>
+<p>其中 explain 各列都有各种不同的值，这里介绍几个比较重要列常包含的值:包含 select_typ、type 和 Extra。</p>
+<p>下面将列出它们常见的一些值，可稍微过一遍，不需要完全记下来，在后续章节分析 SQL 时，可以返回查询本节内容并对比各种值的区别。</p>
+<h3 id="21-select_type">2.1 select_type<a class="headerlink" href="#21-select_type" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>select_type 的值</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SIMPLE</td>
+<td>简单查询(不使用关联查询或子查询)</td>
+</tr>
+<tr>
+<td>PRIMARY</td>
+<td>如果包含关联查询或者子查询，则最外层的查询部分标记为primary</td>
+</tr>
+<tr>
+<td>UNION</td>
+<td>联合查询中第二个及后面的查询</td>
+</tr>
+<tr>
+<td>DEPENDENT UNION</td>
+<td>满足依赖外部的关联查询中第二个及以后的查询</td>
+</tr>
+<tr>
+<td>UNION RESULT</td>
+<td>联合查询的结果</td>
+</tr>
+<tr>
+<td>SUBQUERY</td>
+<td>子查询中的第一个查询</td>
+</tr>
+<tr>
+<td>DEPENDENT SUBQUERY</td>
+<td>子查询中的第一个查询，并且依赖外部查询</td>
+</tr>
+<tr>
+<td>DERIVED</td>
+<td>用到派生表的查询</td>
+</tr>
+<tr>
+<td>MATERIALIZED</td>
+<td>被物化的子查询</td>
+</tr>
+<tr>
+<td>UNCACHEABLE SUBQUERY</td>
+<td>一个子查询的结果不能被缓存，必须重新评估外层查询的每一行</td>
+</tr>
+<tr>
+<td>UNCACHEABLE UNION</td>
+<td>关联查询第二个或后面的语句属于不可缓存的子查询</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-type">2.2 type<a class="headerlink" href="#22-type" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>type的值</th>
+<th>解释</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>system</td>
+<td>查询对象表只有一行数据,且只能用于 MyISAM 和 Memory 引擎的表，这是最好的情况</td>
+</tr>
+<tr>
+<td>const</td>
+<td>基于主键或唯一索引查询，最多返回一条结果</td>
+</tr>
+<tr>
+<td>eq_ref</td>
+<td>表连接时基于主键或非 NULL 的唯一索引完成扫描</td>
+</tr>
+<tr>
+<td>ref</td>
+<td>基于普通索引的等值查询，或者表间等值连接</td>
+</tr>
+<tr>
+<td>fulltext</td>
+<td>全文检索</td>
+</tr>
+<tr>
+<td>ref_or_null</td>
+<td>表连接类型是 ref，但进行扫描的索引列中可能包含 NULL 值</td>
+</tr>
+<tr>
+<td>index_merge</td>
+<td>利用多个索引</td>
+</tr>
+<tr>
+<td>unique_subquery</td>
+<td>子查询中使用唯一索引</td>
+</tr>
+<tr>
+<td>index_subquery</td>
+<td>子查询中使用普通索引</td>
+</tr>
+<tr>
+<td>range</td>
+<td>利用索引进行范围查询</td>
+</tr>
+<tr>
+<td>index</td>
+<td>全索引扫描</td>
+</tr>
+<tr>
+<td>ALL</td>
+<td>全表扫描</td>
+</tr>
+</tbody>
+</table>
+<p><mark class="critic"> 上表的这些情况，查询性能从上到下依次是最好到最差 </mark></p>
+<h3 id="23-extra">2.3 Extra<a class="headerlink" href="#23-extra" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Extra 常见的值</th>
+<th>解释</th>
+<th>例子</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Using filesort</td>
+<td>将用外部排序而不是索引排序，数据较小时从内存排序，否则需要在磁盘完成排序</td>
+<td>explain select * from t1 order by create_time;</td>
+</tr>
+<tr>
+<td>Using temporary</td>
+<td>需要创建一个临时表来存储结构，通常发生对没有索引的列进行 GROUP BY 时</td>
+<td>explain select * from t1 group by create_time;</td>
+</tr>
+<tr>
+<td>Using index</td>
+<td>使用覆盖索引</td>
+<td>explain select a from t1 where a=111;</td>
+</tr>
+<tr>
+<td>Using where</td>
+<td>使用 where 语句来处理结果</td>
+<td>explain select * from t1 where create_time=‘2019-06-18 14:38:24’;</td>
+</tr>
+<tr>
+<td>Impossible WHERE</td>
+<td>对 where 子句判断的结果总是 false 而不能选择任何数据</td>
+<td>explain select * from t1 where 1&lt;0;</td>
+</tr>
+<tr>
+<td>Using join buffer (Block Nested Loop)</td>
+<td>关联查询中，被驱动表的关联字段没索引</td>
+<td>explain select * from t1 straight_join t2 on (t1.create_time=t2.create_time);</td>
+</tr>
+<tr>
+<td>Using index condition</td>
+<td>先条件过滤索引，再查数据</td>
+<td>explain select * from t1 where a &gt;900 and a like “%9”;</td>
+</tr>
+<tr>
+<td>Select tables optimized away</td>
+<td>使用某些聚合函数（比如 max、min）来访问存在索引的某个字段是</td>
+<td>explain select max(a) from t1;</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3">3 总结<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<p>今天我分享的关于定位慢 SQL 及使用 explain 分析慢 SQL 到这里就结束了。本节知识点总结如下：</p>
+<p>本节首先讲到如何定位慢 SQL:</p>
+<p>一种方法是查看慢查询日志
+另一种方法是 show process 查看正在执行的 SQL
+再讲到通过 explain 分析慢 SQL，explain 会返回很多字段，其中 select_type、type、key、rows、Extra 是重点关注项。</p>
+<p>在工作中及面试时，SQL 性能优化都是我们经常遇到的问题，要想做好性能优化，我们必须学会使用 SQL 优化时需要的工具，进行定位和分析。由于篇幅的问题，本小节只介绍了 explain 工具的使用，在下节将补充另外两种分析慢查询的工具：show profile 和 trace。在后面我会再讲解 SQL 优化的一些知识点，相信小伙伴们 SQL 性能优化时一定可以越来越熟练。</p>
+<p>最后小伙伴们可以将处理问题时的心得体会进行总结，也欢迎给我留言分享，我们一起来交流、学习、进步。</p>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../01-01/" title="01-开篇词" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                01-开篇词
+              </span>
+            </div>
+          </a>
+        
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy; 2019 Square, Inc.
+          </div>
+        
+        powered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+  <div class="md-footer-social">
+    <link rel="stylesheet" href="../../../assets/fonts/font-awesome.css">
+    
+      <a href="https://www.wumingsheng.gitbook.io" class="md-footer-social__link fa fa-gitbook"></a>
+    
+      <a href="https://www.baidu.com" class="md-footer-social__link fa fa-baidu"></a>
+    
+      <a href="https://www.google.com" class="md-footer-social__link fa fa-google"></a>
+    
+  </div>
+
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../../assets/javascripts/application.245445c6.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
+      
+    
+  </body>
+</html>
