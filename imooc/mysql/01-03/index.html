@@ -1,0 +1,1031 @@
+
+
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
+      
+        <meta name="description" content="An HTTP & HTTP/2 client for Android and Java applications">
+      
+      
+      
+        <meta name="author" content="woms,wumingsheng.">
+      
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../../../images/icon-square.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.0">
+    
+    
+      
+        <title>03-快速学会分析SQL执行效率（下） - mysql</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/application.0284f74d.css">
+      
+        <link rel="stylesheet" href="../../../assets/stylesheets/application-palette.01803549.css">
+      
+      
+        
+        
+        <meta name="theme-color" content="#009688">
+      
+    
+    
+      <script src="../../../assets/javascripts/modernizr.74668098.js"></script>
+    
+    
+      
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+    
+    <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
+    
+    
+      <link rel="stylesheet" href="../../../css/app.css">
+    
+    
+      
+    
+    
+  </head>
+  
+    
+    
+    <body dir="ltr" data-md-color-primary="teal" data-md-color-accent="white">
+  
+    <svg class="md-svg">
+      <defs>
+        
+        
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#1-show-profile" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="../../.." title="mysql" class="md-header-nav__button md-logo">
+          
+            <img src="../../../images/icon-square.png" width="24" height="24">
+          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            <span class="md-header-nav__topic">
+              mysql
+            </span>
+            <span class="md-header-nav__topic">
+              
+                03-快速学会分析SQL执行效率（下）
+              
+            </span>
+          
+        </div>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        
+          <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+          
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+        
+      </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+<a href="https://github.com/wumingsheng/mkdocs_mysql/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    mkdocs_mysql
+  </div>
+</a>
+          </div>
+        </div>
+      
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
+      
+        
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
+          
+            
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="../../.." title="mysql" class="md-nav__button md-logo">
+      
+        <img src="../../../images/icon-square.png" width="48" height="48">
+      
+    </a>
+    mysql
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+<a href="https://github.com/wumingsheng/mkdocs_mysql/" title="Go to repository" class="md-source" data-md-source="github">
+  
+    <div class="md-source__icon">
+      <svg viewBox="0 0 24 24" width="24" height="24">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    mkdocs_mysql
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-1" type="checkbox" id="nav-1" checked>
+    
+    <label class="md-nav__link" for="nav-1">
+      深入理解MYSQL
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-1">
+        深入理解MYSQL
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-1-1" type="checkbox" id="nav-1-1" checked>
+    
+    <label class="md-nav__link" for="nav-1-1">
+      1. SQL优化
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="2">
+      <label class="md-nav__title" for="nav-1-1">
+        1. SQL优化
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../01-01/" title="01-开篇词" class="md-nav__link">
+      01-开篇词
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../01-02/" title="02-快速学会分析SQL执行效率（上）" class="md-nav__link">
+      02-快速学会分析SQL执行效率（上）
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="__toc">
+        03-快速学会分析SQL执行效率（下）
+      </label>
+    
+    <a href="./" title="03-快速学会分析SQL执行效率（下）" class="md-nav__link md-nav__link--active">
+      03-快速学会分析SQL执行效率（下）
+    </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-show-profile" title="1. show profile 分析慢查询" class="md-nav__link">
+    1. show profile 分析慢查询
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-profile" title="1.1 确定是否支持 profile" class="md-nav__link">
+    1.1 确定是否支持 profile
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-profiling" title="1.2 查看 profiling 是否关闭的" class="md-nav__link">
+    1.2 查看 profiling 是否关闭的
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-set-profile" title="1.3 通过 set 开启 profile" class="md-nav__link">
+    1.3 通过 set 开启 profile
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-sql" title="1.4 执行 SQL 语句" class="md-nav__link">
+    1.4 执行 SQL 语句
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-sql-query-id" title="1.5 确定 SQL 的 query id" class="md-nav__link">
+    1.5 确定 SQL 的 query id
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#16-sql" title="1.6 查询 SQL 执行详情" class="md-nav__link">
+    1.6 查询 SQL 执行详情
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-trace-sql" title="2. trace 分析 SQL 优化器" class="md-nav__link">
+    2. trace 分析 SQL 优化器
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" title="3. 总结" class="md-nav__link">
+    3. 总结
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+    
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+  
+    <label class="md-nav__title" for="__toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-show-profile" title="1. show profile 分析慢查询" class="md-nav__link">
+    1. show profile 分析慢查询
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-profile" title="1.1 确定是否支持 profile" class="md-nav__link">
+    1.1 确定是否支持 profile
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-profiling" title="1.2 查看 profiling 是否关闭的" class="md-nav__link">
+    1.2 查看 profiling 是否关闭的
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-set-profile" title="1.3 通过 set 开启 profile" class="md-nav__link">
+    1.3 通过 set 开启 profile
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-sql" title="1.4 执行 SQL 语句" class="md-nav__link">
+    1.4 执行 SQL 语句
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-sql-query-id" title="1.5 确定 SQL 的 query id" class="md-nav__link">
+    1.5 确定 SQL 的 query id
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#16-sql" title="1.6 查询 SQL 执行详情" class="md-nav__link">
+    1.6 查询 SQL 执行详情
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-trace-sql" title="2. trace 分析 SQL 优化器" class="md-nav__link">
+    2. trace 分析 SQL 优化器
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" title="3. 总结" class="md-nav__link">
+    3. 总结
+  </a>
+  
+</li>
+      
+      
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/wumingsheng/mkdocs_mysql/edit/master/docs/imooc/mysql/01-03.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                  <h1>03-快速学会分析SQL执行效率（下）</h1>
+                
+                <p>在上一节我们学习了定位慢 SQL 及使用 explain 分析慢 SQL，我们也提到了分析慢 SQL 还有 show profile 和 trace 等方法，本节就重点补充学习这两种方法。</p>
+<h2 id="1-show-profile">1. show profile 分析慢查询<a class="headerlink" href="#1-show-profile" title="Permanent link">&para;</a></h2>
+<p>有时需要确定 SQL 到底慢在哪个环节，此时 explain 可能不好确定。在 MySQL 数据库中，通过 profile，能够更清楚地了解 SQL 执行过程的资源使用情况，能让我们知道到底慢在哪个环节。</p>
+<div class="admonition info">
+<p class="admonition-title">知识扩展</p>
+<p>可以通过配置参数 profiling = 1 来启用 SQL 分析。该参数可以在全局和 session 级别来设置。对于全局级别则作用于整个MySQL 实例，而 session 级别仅影响当前 session 。该参数开启后，后续执行的 SQL 语句都将记录其资源开销，如 IO、上下文切换、CPU、Memory等等。根据这些开销进一步分析当前 SQL 从而进行优化与调整。</p>
+</div>
+<p>下面我们来讲一下如何使用 profile 分析慢查询，大致步骤是：确定这个 MySQL 版本是否支持 profile；确定 profile 是否关闭；开启 profile；执行 SQL；查看执行完 SQL 的 query id；通过 query id 查看 SQL 的每个状态及耗时时间。</p>
+<h3 id="11-profile">1.1 确定是否支持 profile<a class="headerlink" href="#11-profile" title="Permanent link">&para;</a></h3>
+<p>我们进行第一步，用下面命令来判断当前 MySQL 是否支持 profile：</p>
+<div class="codehilite"><pre><span></span><span class="n">test</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="o">@@</span><span class="n">have_profiling</span>
+<span class="o">+</span><span class="c1">------------------+</span>
+<span class="o">|</span> <span class="o">@@</span><span class="n">have_profiling</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">------------------+</span>
+<span class="o">|</span> <span class="n">YES</span>              <span class="o">|</span>
+<span class="o">+</span><span class="c1">------------------+</span>
+<span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span>
+<span class="n">Time</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">031</span><span class="n">s</span>
+</pre></div>
+
+<p>从上面结果中可以看出是YES，表示支持profile的。</p>
+<h3 id="12-profiling">1.2 查看 profiling 是否关闭的<a class="headerlink" href="#12-profiling" title="Permanent link">&para;</a></h3>
+<p>进行第二步，用下面命令判断 profiling 参数是否关闭（默认 profiling 是关闭的）：</p>
+<div class="codehilite"><pre><span></span><span class="n">test</span><span class="o">&gt;</span> <span class="k">select</span> <span class="o">@@</span><span class="n">profiling</span>
+<span class="o">+</span><span class="c1">-------------+</span>
+<span class="o">|</span> <span class="o">@@</span><span class="n">profiling</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">-------------+</span>
+<span class="o">|</span> <span class="mi">0</span>           <span class="o">|</span>
+<span class="o">+</span><span class="c1">-------------+</span>
+<span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span>
+<span class="n">Time</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">033</span><span class="n">s</span>
+</pre></div>
+
+<p>结果显示为 0，表示 profiling 参数状态是关闭的。</p>
+<h3 id="13-set-profile">1.3 通过 set 开启 profile<a class="headerlink" href="#13-set-profile" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><span class="n">test</span><span class="o">&gt;</span> <span class="k">set</span> <span class="n">profiling</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">Query</span> <span class="n">OK</span><span class="p">,</span> <span class="mi">0</span> <span class="k">rows</span> <span class="n">affected</span>
+<span class="n">Time</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">022</span><span class="n">s</span>
+<span class="n">test</span><span class="o">&gt;</span>
+</pre></div>
+
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>set 时没加 global，只对当前 session 有效。</p>
+</div>
+<h3 id="14-sql">1.4 执行 SQL 语句<a class="headerlink" href="#14-sql" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><span class="n">test</span><span class="o">&gt;</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">t1</span> <span class="k">where</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="o">+</span><span class="c1">------+------+------+---------------------+---------------------+</span>
+<span class="o">|</span> <span class="n">id</span>   <span class="o">|</span> <span class="n">a</span>    <span class="o">|</span> <span class="n">b</span>    <span class="o">|</span> <span class="n">create_time</span>         <span class="o">|</span> <span class="n">update_time</span>         <span class="o">|</span>
+<span class="o">+</span><span class="c1">------+------+------+---------------------+---------------------+</span>
+<span class="o">|</span> <span class="mi">1000</span> <span class="o">|</span> <span class="mi">1000</span> <span class="o">|</span> <span class="mi">1000</span> <span class="o">|</span> <span class="mi">2019</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">19</span> <span class="mi">19</span><span class="p">:</span><span class="mi">07</span><span class="p">:</span><span class="mi">55</span> <span class="o">|</span> <span class="mi">2019</span><span class="o">-</span><span class="mi">08</span><span class="o">-</span><span class="mi">19</span> <span class="mi">19</span><span class="p">:</span><span class="mi">07</span><span class="p">:</span><span class="mi">55</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">------+------+------+---------------------+---------------------+</span>
+<span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span>
+<span class="n">Time</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">029</span><span class="n">s</span>
+</pre></div>
+
+<h3 id="15-sql-query-id">1.5 确定 SQL 的 query id<a class="headerlink" href="#15-sql-query-id" title="Permanent link">&para;</a></h3>
+<p>通过 show profiles 语句确定执行过的 SQL 的 query id：</p>
+<div class="codehilite"><pre><span></span><span class="n">test</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">profiles</span>
+<span class="o">+</span><span class="c1">----------+------------+---------------------------------+</span>
+<span class="o">|</span> <span class="n">Query_ID</span> <span class="o">|</span> <span class="n">Duration</span>   <span class="o">|</span> <span class="n">Query</span>                           <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+------------+---------------------------------+</span>
+<span class="o">|</span> <span class="mi">1</span>        <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">00065675</span> <span class="o">|</span> <span class="k">SHOW</span> <span class="n">WARNINGS</span>                   <span class="o">|</span>
+<span class="o">|</span> <span class="mi">2</span>        <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">000892</span>   <span class="o">|</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">t1</span> <span class="k">where</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">1000</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------+------------+---------------------------------+</span>
+</pre></div>
+
+<h3 id="16-sql">1.6 查询 SQL 执行详情<a class="headerlink" href="#16-sql" title="Permanent link">&para;</a></h3>
+<p>通过 show profile for query 可看到执行过的 SQL 每个状态和消耗时间：</p>
+<div class="codehilite"><pre><span></span><span class="n">test</span><span class="o">&gt;</span> <span class="k">show</span> <span class="n">profile</span> <span class="k">for</span> <span class="n">query</span> <span class="mi">2</span>
+<span class="o">+</span><span class="c1">----------------------+----------+</span>
+<span class="o">|</span> <span class="n">Status</span>               <span class="o">|</span> <span class="n">Duration</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------------------+----------+</span>
+<span class="o">|</span> <span class="n">starting</span>             <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">000197</span> <span class="o">|</span>
+<span class="o">|</span> <span class="n">checking</span> <span class="n">permissions</span> <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">000041</span> <span class="o">|</span>
+<span class="o">|</span> <span class="n">Opening</span> <span class="n">tables</span>       <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">000059</span> <span class="o">|</span>
+<span class="o">|</span> <span class="n">init</span>                 <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">000059</span> <span class="o">|</span>
+<span class="o">|</span> <span class="k">System</span> <span class="k">lock</span>          <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">000039</span> <span class="o">|</span>
+<span class="o">|</span> <span class="n">optimizing</span>           <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">000040</span> <span class="o">|</span>
+<span class="o">|</span> <span class="k">statistics</span>           <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">000094</span> <span class="o">|</span>
+<span class="o">|</span> <span class="n">preparing</span>            <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">000041</span> <span class="o">|</span>
+<span class="o">|</span> <span class="n">executing</span>            <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">000032</span> <span class="o">|</span>
+<span class="o">|</span> <span class="n">Sending</span> <span class="k">data</span>         <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">000075</span> <span class="o">|</span>
+<span class="o">|</span> <span class="k">end</span>                  <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">000035</span> <span class="o">|</span>
+<span class="o">|</span> <span class="n">query</span> <span class="k">end</span>            <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">000036</span> <span class="o">|</span>
+<span class="o">|</span> <span class="n">closing</span> <span class="n">tables</span>       <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">000047</span> <span class="o">|</span>
+<span class="o">|</span> <span class="n">freeing</span> <span class="n">items</span>        <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">000056</span> <span class="o">|</span>
+<span class="o">|</span> <span class="n">cleaning</span> <span class="n">up</span>          <span class="o">|</span> <span class="mi">0</span><span class="p">.</span><span class="mi">000043</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----------------------+----------+</span>
+<span class="mi">15</span> <span class="k">rows</span> <span class="k">in</span> <span class="k">set</span>
+<span class="n">Time</span><span class="p">:</span> <span class="mi">0</span><span class="p">.</span><span class="mi">031</span><span class="n">s</span>
+</pre></div>
+
+<p>通过以上结果，可以确定 SQL 执行过程具体在哪个过程耗时比较久，从而更好地进行 SQL 优化与调整。</p>
+<h2 id="2-trace-sql">2. trace 分析 SQL 优化器<a class="headerlink" href="#2-trace-sql" title="Permanent link">&para;</a></h2>
+<p>从前面学到了 explain 可以查看 SQL 执行计划，但是无法知道它为什么做这个决策，如果想确定多种索引方案之间是如何选择的或者排序时选择的是哪种排序模式，有什么好的办法吗？</p>
+<p>从 MySQL 5.6 开始，可以使用 trace 查看优化器如何选择执行计划。</p>
+<p>通过trace，能够进一步了解为什么优化器选择A执行计划而不是选择B执行计划，或者知道某个排序使用的排序模式，帮助我们更好地理解优化器行为。</p>
+<p>如果需要使用，先开启 trace，设置格式为 JSON，再执行需要分析的 SQL，最后查看 trace 分析结果（在 information_schema.OPTIMIZER_TRACE 中）。</p>
+<p>开启该功能，会对 MySQL 性能有所影响，因此只建议分析问题时临时开启。</p>
+<p>下面一起来看下 trace 的使用方法。使用讲解 explain 时创建的表t1做实验。</p>
+<p>首先构造如下 SQL (表示取出表 t1 中 a 的值大于 900 并且 b 的值大于 910 的数据，然后按照 a 字段排序)：</p>
+<p><div class="codehilite"><pre><span></span><span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">t1</span> <span class="k">where</span> <span class="n">a</span> <span class="o">&gt;</span><span class="mi">900</span> <span class="k">and</span> <span class="n">b</span> <span class="o">&gt;</span> <span class="mi">910</span> <span class="k">order</span>  <span class="k">by</span> <span class="n">a</span><span class="p">;</span>
+</pre></div>
+我们首先用 explain 分析下执行计划：</p>
+<div class="codehilite"><pre><span></span><span class="n">test</span><span class="o">&gt;</span> <span class="k">explain</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">t1</span> <span class="k">where</span> <span class="n">a</span> <span class="o">&gt;</span><span class="mi">900</span> <span class="k">and</span> <span class="n">b</span> <span class="o">&gt;</span> <span class="mi">910</span> <span class="k">order</span>  <span class="k">by</span> <span class="n">a</span>
+
+<span class="o">+</span><span class="c1">----+-------------+-------+------------+-------+---------------+-------+---------+--------+------+----------+----------------------------------------------------+</span>
+<span class="o">|</span> <span class="n">id</span> <span class="o">|</span> <span class="n">select_type</span> <span class="o">|</span> <span class="k">table</span> <span class="o">|</span> <span class="n">partitions</span> <span class="o">|</span> <span class="k">type</span>  <span class="o">|</span> <span class="n">possible_keys</span> <span class="o">|</span> <span class="k">key</span>   <span class="o">|</span> <span class="n">key_len</span> <span class="o">|</span> <span class="k">ref</span>    <span class="o">|</span> <span class="k">rows</span> <span class="o">|</span> <span class="n">filtered</span> <span class="o">|</span> <span class="n">Extra</span>                                              <span class="o">|</span>
+<span class="o">+</span><span class="c1">----+-------------+-------+------------+-------+---------------+-------+---------+--------+------+----------+----------------------------------------------------+</span>
+<span class="o">|</span> <span class="mi">1</span>  <span class="o">|</span> <span class="k">SIMPLE</span>      <span class="o">|</span> <span class="n">t1</span>    <span class="o">|</span> <span class="o">&lt;</span><span class="k">null</span><span class="o">&gt;</span>     <span class="o">|</span> <span class="n">range</span> <span class="o">|</span> <span class="n">idx_a</span><span class="p">,</span><span class="n">idx_b</span>   <span class="o">|</span> <span class="n">idx_b</span> <span class="o">|</span> <span class="mi">5</span>       <span class="o">|</span> <span class="o">&lt;</span><span class="k">null</span><span class="o">&gt;</span> <span class="o">|</span> <span class="mi">90</span>   <span class="o">|</span> <span class="mi">10</span><span class="p">.</span><span class="mi">0</span>     <span class="o">|</span> <span class="k">Using</span> <span class="k">index</span> <span class="n">condition</span><span class="p">;</span> <span class="k">Using</span> <span class="k">where</span><span class="p">;</span> <span class="k">Using</span> <span class="n">filesort</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">----+-------------+-------+------------+-------+---------------+-------+---------+--------+------+----------+----------------------------------------------------+</span>
+</pre></div>
+
+<p>通过上面执行计划中 key 这个字段可以看出，该语句使用的是 b 字段的索引 idx_b。实际表 t1 中，a、b 两个字段都有索引，为什么条件中有这两个索引字段却偏偏选了 b 字段的索引呢？这时就可以使用 trace 进行分析。大致步骤如下：</p>
+<p><div class="codehilite"><pre><span></span><span class="n">mysql</span><span class="o">&gt;</span> <span class="k">set</span> <span class="k">session</span> <span class="n">optimizer_trace</span><span class="o">=</span><span class="ss">&quot;enabled=on&quot;</span><span class="p">,</span><span class="n">end_markers_in_json</span><span class="o">=</span><span class="k">on</span><span class="p">;</span>
+<span class="cm">/* optimizer_trace=&quot;enabled=on&quot; 表示开启 trace；end_markers_in_json=on 表示 JSON 输出开启结束标记 */</span>
+<span class="n">Query</span> <span class="n">OK</span><span class="p">,</span> <span class="mi">0</span> <span class="k">rows</span> <span class="n">affected</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">t1</span> <span class="k">where</span> <span class="n">a</span> <span class="o">&gt;</span><span class="mi">900</span> <span class="k">and</span> <span class="n">b</span> <span class="o">&gt;</span> <span class="mi">910</span> <span class="k">order</span>  <span class="k">by</span> <span class="n">a</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">------+------+------+</span>
+<span class="o">|</span> <span class="n">id</span>   <span class="o">|</span> <span class="n">a</span>    <span class="o">|</span> <span class="n">b</span>    <span class="o">|</span>
+<span class="o">+</span><span class="c1">------+------+------+</span>
+<span class="o">|</span>    <span class="mi">1</span> <span class="o">|</span>    <span class="mi">1</span> <span class="o">|</span>    <span class="mi">1</span> <span class="o">|</span>
+<span class="o">|</span>    <span class="mi">2</span> <span class="o">|</span>    <span class="mi">2</span> <span class="o">|</span>    <span class="mi">2</span> <span class="o">|</span>
+
+<span class="p">......</span>
+
+<span class="o">|</span> <span class="mi">1000</span> <span class="o">|</span> <span class="mi">1000</span> <span class="o">|</span> <span class="mi">1000</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">------+------+------+</span>
+<span class="mi">1000</span> <span class="k">rows</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">information_schema</span><span class="p">.</span><span class="n">OPTIMIZER_TRACE</span><span class="err">\</span><span class="k">G</span>
+<span class="o">***************************</span> <span class="mi">1</span><span class="p">.</span> <span class="k">row</span> <span class="o">***************************</span>
+<span class="n">QUERY</span><span class="p">:</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">t1</span> <span class="k">where</span> <span class="n">a</span> <span class="o">&gt;</span><span class="mi">900</span> <span class="k">and</span> <span class="n">b</span> <span class="o">&gt;</span> <span class="mi">910</span> <span class="k">order</span>  <span class="k">by</span> <span class="n">a</span>    <span class="c1">--SQL语句</span>
+<span class="n">TRACE</span><span class="p">:</span> <span class="err">{</span>
+  <span class="ss">&quot;steps&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="err">{</span>
+      <span class="ss">&quot;join_preparation&quot;</span><span class="p">:</span> <span class="err">{</span>             <span class="c1">--SQL准备阶段</span>
+        <span class="ss">&quot;select#&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="ss">&quot;steps&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="err">{</span>
+            <span class="ss">&quot;expanded_query&quot;</span><span class="p">:</span> <span class="ss">&quot;/* select#1 */ select `t1`.`id` AS `id`,`t1`.`a` AS `a`,`t1`.`b` AS `b`,`t1`.`create_time` AS `create_time`,`t1`.`update_time` AS `update_time` from `t1` where ((`t1`.`a` &gt; 900) and (`t1`.`b` &gt; 910)) order by `t1`.`a`&quot;</span>
+          <span class="err">}</span>
+        <span class="p">]</span> <span class="cm">/* steps */</span>
+      <span class="err">}</span> <span class="cm">/* join_preparation */</span>
+    <span class="err">}</span><span class="p">,</span>
+    <span class="err">{</span>
+      <span class="ss">&quot;join_optimization&quot;</span><span class="p">:</span> <span class="err">{</span>            <span class="c1">--SQL优化阶段</span>
+        <span class="ss">&quot;select#&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="ss">&quot;steps&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="err">{</span>
+            <span class="ss">&quot;condition_processing&quot;</span><span class="p">:</span> <span class="err">{</span>    <span class="c1">--条件处理</span>
+              <span class="ss">&quot;condition&quot;</span><span class="p">:</span> <span class="ss">&quot;WHERE&quot;</span><span class="p">,</span>
+              <span class="ss">&quot;original_condition&quot;</span><span class="p">:</span> <span class="ss">&quot;((`t1`.`a` &gt; 900) and (`t1`.`b` &gt; 910))&quot;</span><span class="p">,</span>        <span class="c1">--原始条件</span>
+              <span class="ss">&quot;steps&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="err">{</span>
+                  <span class="ss">&quot;transformation&quot;</span><span class="p">:</span> <span class="ss">&quot;equality_propagation&quot;</span><span class="p">,</span>
+                  <span class="ss">&quot;resulting_condition&quot;</span><span class="p">:</span> <span class="ss">&quot;((`t1`.`a` &gt; 900) and (`t1`.`b` &gt; 910))&quot;</span>      <span class="c1">--等值传递转换</span>
+                <span class="err">}</span><span class="p">,</span>
+                <span class="err">{</span>
+                  <span class="ss">&quot;transformation&quot;</span><span class="p">:</span> <span class="ss">&quot;constant_propagation&quot;</span><span class="p">,</span>
+                  <span class="ss">&quot;resulting_condition&quot;</span><span class="p">:</span> <span class="ss">&quot;((`t1`.`a` &gt; 900) and (`t1`.`b` &gt; 910))&quot;</span>       <span class="c1">--常量传递转换</span>
+                <span class="err">}</span><span class="p">,</span>
+                <span class="err">{</span>
+                  <span class="ss">&quot;transformation&quot;</span><span class="p">:</span> <span class="ss">&quot;trivial_condition_removal&quot;</span><span class="p">,</span>
+                  <span class="ss">&quot;resulting_condition&quot;</span><span class="p">:</span> <span class="ss">&quot;((`t1`.`a` &gt; 900) and (`t1`.`b` &gt; 910))&quot;</span>        <span class="c1">--去除没有的条件后的结构</span>
+                <span class="err">}</span>
+              <span class="p">]</span> <span class="cm">/* steps */</span>
+            <span class="err">}</span> <span class="cm">/* condition_processing */</span>
+          <span class="err">}</span><span class="p">,</span>
+          <span class="err">{</span>
+            <span class="ss">&quot;substitute_generated_columns&quot;</span><span class="p">:</span> <span class="err">{</span>
+            <span class="err">}</span> <span class="cm">/* substitute_generated_columns */</span>   <span class="c1">--替换虚拟生成列</span>
+          <span class="err">}</span><span class="p">,</span>
+          <span class="err">{</span>
+            <span class="ss">&quot;table_dependencies&quot;</span><span class="p">:</span> <span class="p">[</span>     <span class="c1">--表依赖详情</span>
+              <span class="err">{</span>
+                <span class="ss">&quot;table&quot;</span><span class="p">:</span> <span class="ss">&quot;`t1`&quot;</span><span class="p">,</span>
+                <span class="ss">&quot;row_may_be_null&quot;</span><span class="p">:</span> <span class="k">false</span><span class="p">,</span>
+                <span class="ss">&quot;map_bit&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+                <span class="ss">&quot;depends_on_map_bits&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">]</span> <span class="cm">/* depends_on_map_bits */</span>
+              <span class="err">}</span>
+            <span class="p">]</span> <span class="cm">/* table_dependencies */</span>
+          <span class="err">}</span><span class="p">,</span>
+          <span class="err">{</span>
+            <span class="ss">&quot;ref_optimizer_key_uses&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">]</span> <span class="cm">/* ref_optimizer_key_uses */</span>
+          <span class="err">}</span><span class="p">,</span>
+          <span class="err">{</span>
+            <span class="ss">&quot;rows_estimation&quot;</span><span class="p">:</span> <span class="p">[</span>    <span class="c1">--预估表的访问成本</span>
+              <span class="err">{</span>
+                <span class="ss">&quot;table&quot;</span><span class="p">:</span> <span class="ss">&quot;`t1`&quot;</span><span class="p">,</span>
+                <span class="ss">&quot;range_analysis&quot;</span><span class="p">:</span> <span class="err">{</span>
+                  <span class="ss">&quot;table_scan&quot;</span><span class="p">:</span> <span class="err">{</span>
+                    <span class="ss">&quot;rows&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>       <span class="c1">--扫描行数</span>
+                    <span class="ss">&quot;cost&quot;</span><span class="p">:</span> <span class="mi">207</span><span class="p">.</span><span class="mi">1</span>       <span class="c1">--成本</span>
+                  <span class="err">}</span> <span class="cm">/* table_scan */</span><span class="p">,</span>
+                  <span class="ss">&quot;potential_range_indexes&quot;</span><span class="p">:</span> <span class="p">[</span>    <span class="c1">--分析可能使用的索引</span>
+                    <span class="err">{</span>
+                      <span class="ss">&quot;index&quot;</span><span class="p">:</span> <span class="ss">&quot;PRIMARY&quot;</span><span class="p">,</span>
+                      <span class="ss">&quot;usable&quot;</span><span class="p">:</span> <span class="k">false</span><span class="p">,</span>       <span class="c1">--为false，说明主键索引不可用</span>
+                      <span class="ss">&quot;cause&quot;</span><span class="p">:</span> <span class="ss">&quot;not_applicable&quot;</span>
+                    <span class="err">}</span><span class="p">,</span>
+                    <span class="err">{</span>
+                      <span class="ss">&quot;index&quot;</span><span class="p">:</span> <span class="ss">&quot;idx_a&quot;</span><span class="p">,</span>      <span class="c1">--可能使用索引idx_a</span>
+                      <span class="ss">&quot;usable&quot;</span><span class="p">:</span> <span class="k">true</span><span class="p">,</span>
+                      <span class="ss">&quot;key_parts&quot;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="ss">&quot;a&quot;</span><span class="p">,</span>
+                        <span class="ss">&quot;id&quot;</span>
+                      <span class="p">]</span> <span class="cm">/* key_parts */</span>
+                    <span class="err">}</span><span class="p">,</span>
+                    <span class="err">{</span>
+                      <span class="ss">&quot;index&quot;</span><span class="p">:</span> <span class="ss">&quot;idx_b&quot;</span><span class="p">,</span>      <span class="c1">--可能使用索引idx_b</span>
+                      <span class="ss">&quot;usable&quot;</span><span class="p">:</span> <span class="k">true</span><span class="p">,</span>
+                      <span class="ss">&quot;key_parts&quot;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="ss">&quot;b&quot;</span><span class="p">,</span>
+                        <span class="ss">&quot;id&quot;</span>
+                      <span class="p">]</span> <span class="cm">/* key_parts */</span>
+                    <span class="err">}</span>
+                  <span class="p">]</span> <span class="cm">/* potential_range_indexes */</span><span class="p">,</span>
+                  <span class="ss">&quot;setup_range_conditions&quot;</span><span class="p">:</span> <span class="p">[</span>
+                  <span class="p">]</span> <span class="cm">/* setup_range_conditions */</span><span class="p">,</span>
+                  <span class="ss">&quot;group_index_range&quot;</span><span class="p">:</span> <span class="err">{</span>
+                    <span class="ss">&quot;chosen&quot;</span><span class="p">:</span> <span class="k">false</span><span class="p">,</span>
+                    <span class="ss">&quot;cause&quot;</span><span class="p">:</span> <span class="ss">&quot;not_group_by_or_distinct&quot;</span>
+                  <span class="err">}</span> <span class="cm">/* group_index_range */</span><span class="p">,</span>
+                  <span class="ss">&quot;analyzing_range_alternatives&quot;</span><span class="p">:</span> <span class="err">{</span> <span class="c1">--分析各索引的成本</span>
+                    <span class="ss">&quot;range_scan_alternatives&quot;</span><span class="p">:</span> <span class="p">[</span>
+                      <span class="err">{</span>
+                        <span class="ss">&quot;index&quot;</span><span class="p">:</span> <span class="ss">&quot;idx_a&quot;</span><span class="p">,</span>   <span class="c1">--使用索引idx_a的成本</span>
+                        <span class="ss">&quot;ranges&quot;</span><span class="p">:</span> <span class="p">[</span>
+                          <span class="ss">&quot;900 &lt; a&quot;</span>         <span class="c1">--使用索引idx_a的范围</span>
+                        <span class="p">]</span> <span class="cm">/* ranges */</span><span class="p">,</span>
+                        <span class="ss">&quot;index_dives_for_eq_ranges&quot;</span><span class="p">:</span> <span class="k">true</span><span class="p">,</span> <span class="c1">--是否使用index dive（详细描述请看下方的知识扩展）</span>
+                        <span class="ss">&quot;rowid_ordered&quot;</span><span class="p">:</span> <span class="k">false</span><span class="p">,</span> <span class="c1">--使用该索引获取的记录是否按照主键排序</span>
+                        <span class="ss">&quot;using_mrr&quot;</span><span class="p">:</span> <span class="k">false</span><span class="p">,</span>     <span class="c1">--是否使用mrr</span>
+                        <span class="ss">&quot;index_only&quot;</span><span class="p">:</span> <span class="k">false</span><span class="p">,</span>    <span class="c1">--是否使用覆盖索引</span>
+                        <span class="ss">&quot;rows&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>            <span class="c1">--使用该索引获取的记录数</span>
+                        <span class="ss">&quot;cost&quot;</span><span class="p">:</span> <span class="mi">121</span><span class="p">.</span><span class="mi">01</span><span class="p">,</span>         <span class="c1">--使用该索引的成本</span>
+                        <span class="ss">&quot;chosen&quot;</span><span class="p">:</span> <span class="k">true</span>          <span class="c1">--可能选择该索引</span>
+                      <span class="err">}</span><span class="p">,</span>
+                      <span class="err">{</span>
+                        <span class="ss">&quot;index&quot;</span><span class="p">:</span> <span class="ss">&quot;idx_b&quot;</span><span class="p">,</span>       <span class="c1">--使用索引idx_b的成本</span>
+                        <span class="ss">&quot;ranges&quot;</span><span class="p">:</span> <span class="p">[</span>
+                          <span class="ss">&quot;910 &lt; b&quot;</span>
+                        <span class="p">]</span> <span class="cm">/* ranges */</span><span class="p">,</span>
+                        <span class="ss">&quot;index_dives_for_eq_ranges&quot;</span><span class="p">:</span> <span class="k">true</span><span class="p">,</span>
+                        <span class="ss">&quot;rowid_ordered&quot;</span><span class="p">:</span> <span class="k">false</span><span class="p">,</span>
+                        <span class="ss">&quot;using_mrr&quot;</span><span class="p">:</span> <span class="k">false</span><span class="p">,</span>
+                        <span class="ss">&quot;index_only&quot;</span><span class="p">:</span> <span class="k">false</span><span class="p">,</span>
+                        <span class="ss">&quot;rows&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+                        <span class="ss">&quot;cost&quot;</span><span class="p">:</span> <span class="mi">109</span><span class="p">.</span><span class="mi">01</span><span class="p">,</span>
+                        <span class="ss">&quot;chosen&quot;</span><span class="p">:</span> <span class="k">true</span>             <span class="c1">--也可能选择该索引</span>
+                      <span class="err">}</span>
+                    <span class="p">]</span> <span class="cm">/* range_scan_alternatives */</span><span class="p">,</span>
+                    <span class="ss">&quot;analyzing_roworder_intersect&quot;</span><span class="p">:</span> <span class="err">{</span> <span class="c1">--分析使用索引合并的成本</span>
+                      <span class="ss">&quot;usable&quot;</span><span class="p">:</span> <span class="k">false</span><span class="p">,</span>
+                      <span class="ss">&quot;cause&quot;</span><span class="p">:</span> <span class="ss">&quot;too_few_roworder_scans&quot;</span>
+                    <span class="err">}</span> <span class="cm">/* analyzing_roworder_intersect */</span>
+                  <span class="err">}</span> <span class="cm">/* analyzing_range_alternatives */</span><span class="p">,</span>
+                  <span class="ss">&quot;chosen_range_access_summary&quot;</span><span class="p">:</span> <span class="err">{</span>  <span class="c1">--确认最优方法</span>
+                    <span class="ss">&quot;range_access_plan&quot;</span><span class="p">:</span> <span class="err">{</span>
+                      <span class="ss">&quot;type&quot;</span><span class="p">:</span> <span class="ss">&quot;range_scan&quot;</span><span class="p">,</span>
+                      <span class="ss">&quot;index&quot;</span><span class="p">:</span> <span class="ss">&quot;idx_b&quot;</span><span class="p">,</span>
+                      <span class="ss">&quot;rows&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+                      <span class="ss">&quot;ranges&quot;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="ss">&quot;910 &lt; b&quot;</span>
+                      <span class="p">]</span> <span class="cm">/* ranges */</span>
+                    <span class="err">}</span> <span class="cm">/* range_access_plan */</span><span class="p">,</span>
+                    <span class="ss">&quot;rows_for_plan&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+                    <span class="ss">&quot;cost_for_plan&quot;</span><span class="p">:</span> <span class="mi">109</span><span class="p">.</span><span class="mi">01</span><span class="p">,</span>
+                    <span class="ss">&quot;chosen&quot;</span><span class="p">:</span> <span class="k">true</span>
+                  <span class="err">}</span> <span class="cm">/* chosen_range_access_summary */</span>
+                <span class="err">}</span> <span class="cm">/* range_analysis */</span>
+              <span class="err">}</span>
+            <span class="p">]</span> <span class="cm">/* rows_estimation */</span>
+          <span class="err">}</span><span class="p">,</span>
+          <span class="err">{</span>
+            <span class="ss">&quot;considered_execution_plans&quot;</span><span class="p">:</span> <span class="p">[</span>  <span class="c1">--考虑的执行计划</span>
+              <span class="err">{</span>
+                <span class="ss">&quot;plan_prefix&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">]</span> <span class="cm">/* plan_prefix */</span><span class="p">,</span>
+                <span class="ss">&quot;table&quot;</span><span class="p">:</span> <span class="ss">&quot;`t1`&quot;</span><span class="p">,</span>
+                <span class="ss">&quot;best_access_path&quot;</span><span class="p">:</span> <span class="err">{</span>          <span class="c1">--最优的访问路径</span>
+                  <span class="ss">&quot;considered_access_paths&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="c1">--决定的访问路径</span>
+                    <span class="err">{</span>
+                      <span class="ss">&quot;rows_to_scan&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>      <span class="c1">--扫描的行数</span>
+                      <span class="ss">&quot;access_type&quot;</span><span class="p">:</span> <span class="ss">&quot;range&quot;</span><span class="p">,</span>  <span class="c1">--访问类型：为range</span>
+                      <span class="ss">&quot;range_details&quot;</span><span class="p">:</span> <span class="err">{</span>
+                        <span class="ss">&quot;used_index&quot;</span><span class="p">:</span> <span class="ss">&quot;idx_b&quot;</span>  <span class="c1">--使用的索引为：idx_b</span>
+                      <span class="err">}</span> <span class="cm">/* range_details */</span><span class="p">,</span>
+                      <span class="ss">&quot;resulting_rows&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>    <span class="c1">--结果行数</span>
+                      <span class="ss">&quot;cost&quot;</span><span class="p">:</span> <span class="mi">127</span><span class="p">.</span><span class="mi">01</span><span class="p">,</span>          <span class="c1">--成本</span>
+                      <span class="ss">&quot;chosen&quot;</span><span class="p">:</span> <span class="k">true</span><span class="p">,</span>          <span class="c1">--确定选择</span>
+                      <span class="ss">&quot;use_tmp_table&quot;</span><span class="p">:</span> <span class="k">true</span>
+                    <span class="err">}</span>
+                  <span class="p">]</span> <span class="cm">/* considered_access_paths */</span>
+                <span class="err">}</span> <span class="cm">/* best_access_path */</span><span class="p">,</span>
+                <span class="ss">&quot;condition_filtering_pct&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                <span class="ss">&quot;rows_for_plan&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+                <span class="ss">&quot;cost_for_plan&quot;</span><span class="p">:</span> <span class="mi">127</span><span class="p">.</span><span class="mi">01</span><span class="p">,</span>
+                <span class="ss">&quot;sort_cost&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+                <span class="ss">&quot;new_cost_for_plan&quot;</span><span class="p">:</span> <span class="mi">217</span><span class="p">.</span><span class="mi">01</span><span class="p">,</span>
+                <span class="ss">&quot;chosen&quot;</span><span class="p">:</span> <span class="k">true</span>
+              <span class="err">}</span>
+            <span class="p">]</span> <span class="cm">/* considered_execution_plans */</span>
+          <span class="err">}</span><span class="p">,</span>
+          <span class="err">{</span>
+            <span class="ss">&quot;attaching_conditions_to_tables&quot;</span><span class="p">:</span> <span class="err">{</span>  <span class="c1">--尝试添加一些其他的查询条件</span>
+              <span class="ss">&quot;original_condition&quot;</span><span class="p">:</span> <span class="ss">&quot;((`t1`.`a` &gt; 900) and (`t1`.`b` &gt; 910))&quot;</span><span class="p">,</span>
+              <span class="ss">&quot;attached_conditions_computation&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="p">]</span> <span class="cm">/* attached_conditions_computation */</span><span class="p">,</span>
+              <span class="ss">&quot;attached_conditions_summary&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="err">{</span>
+                  <span class="ss">&quot;table&quot;</span><span class="p">:</span> <span class="ss">&quot;`t1`&quot;</span><span class="p">,</span>
+                  <span class="ss">&quot;attached&quot;</span><span class="p">:</span> <span class="ss">&quot;((`t1`.`a` &gt; 900) and (`t1`.`b` &gt; 910))&quot;</span>
+                <span class="err">}</span>
+              <span class="p">]</span> <span class="cm">/* attached_conditions_summary */</span>
+            <span class="err">}</span> <span class="cm">/* attaching_conditions_to_tables */</span>
+          <span class="err">}</span><span class="p">,</span>
+          <span class="err">{</span>
+            <span class="ss">&quot;clause_processing&quot;</span><span class="p">:</span> <span class="err">{</span>
+              <span class="ss">&quot;clause&quot;</span><span class="p">:</span> <span class="ss">&quot;ORDER BY&quot;</span><span class="p">,</span>
+              <span class="ss">&quot;original_clause&quot;</span><span class="p">:</span> <span class="ss">&quot;`t1`.`a`&quot;</span><span class="p">,</span>
+              <span class="ss">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="err">{</span>
+                  <span class="ss">&quot;item&quot;</span><span class="p">:</span> <span class="ss">&quot;`t1`.`a`&quot;</span>
+                <span class="err">}</span>
+              <span class="p">]</span> <span class="cm">/* items */</span><span class="p">,</span>
+              <span class="ss">&quot;resulting_clause_is_simple&quot;</span><span class="p">:</span> <span class="k">true</span><span class="p">,</span>
+              <span class="ss">&quot;resulting_clause&quot;</span><span class="p">:</span> <span class="ss">&quot;`t1`.`a`&quot;</span>
+            <span class="err">}</span> <span class="cm">/* clause_processing */</span>
+          <span class="err">}</span><span class="p">,</span>
+          <span class="err">{</span>
+            <span class="ss">&quot;reconsidering_access_paths_for_index_ordering&quot;</span><span class="p">:</span> <span class="err">{</span>
+              <span class="ss">&quot;clause&quot;</span><span class="p">:</span> <span class="ss">&quot;ORDER BY&quot;</span><span class="p">,</span>
+              <span class="ss">&quot;index_order_summary&quot;</span><span class="p">:</span> <span class="err">{</span>
+                <span class="ss">&quot;table&quot;</span><span class="p">:</span> <span class="ss">&quot;`t1`&quot;</span><span class="p">,</span>
+                <span class="ss">&quot;index_provides_order&quot;</span><span class="p">:</span> <span class="k">false</span><span class="p">,</span>
+                <span class="ss">&quot;order_direction&quot;</span><span class="p">:</span> <span class="ss">&quot;undefined&quot;</span><span class="p">,</span>
+                <span class="ss">&quot;index&quot;</span><span class="p">:</span> <span class="ss">&quot;idx_b&quot;</span><span class="p">,</span>
+                <span class="ss">&quot;plan_changed&quot;</span><span class="p">:</span> <span class="k">false</span>
+              <span class="err">}</span> <span class="cm">/* index_order_summary */</span>
+            <span class="err">}</span> <span class="cm">/* reconsidering_access_paths_for_index_ordering */</span>
+          <span class="err">}</span><span class="p">,</span>
+          <span class="err">{</span>
+            <span class="ss">&quot;refine_plan&quot;</span><span class="p">:</span> <span class="p">[</span>          <span class="c1">--改进的执行计划</span>
+              <span class="err">{</span>
+                <span class="ss">&quot;table&quot;</span><span class="p">:</span> <span class="ss">&quot;`t1`&quot;</span><span class="p">,</span>
+                <span class="ss">&quot;pushed_index_condition&quot;</span><span class="p">:</span> <span class="ss">&quot;(`t1`.`b` &gt; 910)&quot;</span><span class="p">,</span>
+                <span class="ss">&quot;table_condition_attached&quot;</span><span class="p">:</span> <span class="ss">&quot;(`t1`.`a` &gt; 900)&quot;</span>
+              <span class="err">}</span>
+            <span class="p">]</span> <span class="cm">/* refine_plan */</span>
+          <span class="err">}</span>
+        <span class="p">]</span> <span class="cm">/* steps */</span>
+      <span class="err">}</span> <span class="cm">/* join_optimization */</span>
+    <span class="err">}</span><span class="p">,</span>
+    <span class="err">{</span>
+      <span class="ss">&quot;join_execution&quot;</span><span class="p">:</span> <span class="err">{</span>             <span class="c1">--SQL执行阶段</span>
+        <span class="ss">&quot;select#&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="ss">&quot;steps&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="err">{</span>
+            <span class="ss">&quot;filesort_information&quot;</span><span class="p">:</span> <span class="p">[</span>
+              <span class="err">{</span>
+                <span class="ss">&quot;direction&quot;</span><span class="p">:</span> <span class="ss">&quot;asc&quot;</span><span class="p">,</span>
+                <span class="ss">&quot;table&quot;</span><span class="p">:</span> <span class="ss">&quot;`t1`&quot;</span><span class="p">,</span>
+                <span class="ss">&quot;field&quot;</span><span class="p">:</span> <span class="ss">&quot;a&quot;</span>
+              <span class="err">}</span>
+            <span class="p">]</span> <span class="cm">/* filesort_information */</span><span class="p">,</span>
+            <span class="ss">&quot;filesort_priority_queue_optimization&quot;</span><span class="p">:</span> <span class="err">{</span>
+              <span class="ss">&quot;usable&quot;</span><span class="p">:</span> <span class="k">false</span><span class="p">,</span>             <span class="c1">--未使用优先队列优化排序</span>
+              <span class="ss">&quot;cause&quot;</span><span class="p">:</span> <span class="ss">&quot;not applicable (no LIMIT)&quot;</span>     <span class="c1">--未使用优先队列排序的原因是没有limit</span>
+            <span class="err">}</span> <span class="cm">/* filesort_priority_queue_optimization */</span><span class="p">,</span>
+            <span class="ss">&quot;filesort_execution&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">]</span> <span class="cm">/* filesort_execution */</span><span class="p">,</span>
+            <span class="ss">&quot;filesort_summary&quot;</span><span class="p">:</span> <span class="err">{</span>           <span class="c1">--排序详情</span>
+              <span class="ss">&quot;rows&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>
+              <span class="ss">&quot;examined_rows&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span>          <span class="c1">--参与排序的行数</span>
+              <span class="ss">&quot;number_of_tmp_files&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>     <span class="c1">--排序过程中使用的临时文件数</span>
+              <span class="ss">&quot;sort_buffer_size&quot;</span><span class="p">:</span> <span class="mi">115056</span><span class="p">,</span>
+              <span class="ss">&quot;sort_mode&quot;</span><span class="p">:</span> <span class="ss">&quot;&lt;sort_key, additional_fields&gt;&quot;</span>   <span class="c1">--排序模式（详解请看下方知识扩展）</span>
+            <span class="err">}</span> <span class="cm">/* filesort_summary */</span>
+          <span class="err">}</span>
+        <span class="p">]</span> <span class="cm">/* steps */</span>
+      <span class="err">}</span> <span class="cm">/* join_execution */</span>
+    <span class="err">}</span>
+  <span class="p">]</span> <span class="cm">/* steps */</span>
+<span class="err">}</span>
+<span class="n">MISSING_BYTES_BEYOND_MAX_MEM_SIZE</span><span class="p">:</span> <span class="mi">0</span>    <span class="c1">--该字段表示分析过程丢弃的文本字节大小，本例为0，说明没丢弃任何文本</span>
+          <span class="n">INSUFFICIENT_PRIVILEGES</span><span class="p">:</span> <span class="mi">0</span>    <span class="c1">--查看trace的权限是否不足，0表示有权限查看trace详情</span>
+<span class="mi">1</span> <span class="k">row</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">00</span> <span class="n">sec</span><span class="p">)</span>
+<span class="c1">------------------------------------------------</span>
+<span class="c1">------------------------------------------------</span>
+
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">set</span> <span class="k">session</span> <span class="n">optimizer_trace</span><span class="o">=</span><span class="ss">&quot;enabled=off&quot;</span><span class="p">;</span>
+</pre></div>
+这里对上方的执行字段详细描述一下：</p>
+<p>TRACE 字段中整个文本大致分为三个过程。</p>
+<ul>
+<li>准备阶段：对应文本中的 join_preparation</li>
+<li>优化阶段：对应文本中的 join_optimization</li>
+<li>执行阶段：对应文本中的 join_execution</li>
+</ul>
+<p>使用时，重点关注优化阶段和执行阶段。</p>
+<p>由此例可以看出：</p>
+<ul>
+<li>在 trace 结果的 analyzing_range_alternatives 这一项可以看到：使用索引 idx_a 的成本为 121.01，使用索引 idx_b 的成本为 109.01，显然使用索引 idx_b 的成本要低些，因此优化器选择了 idx_b 索引；</li>
+<li>在 trace 结果的 filesort_summary 这一项可以看到：排序模式为<sort_key, additional_fields>，表示使用的是单路排序，即一次性取出满足条件行的所有字段，然后在 sort buffer 中进行排序。</li>
+</ul>
+<div class="admonition abstract">
+<p class="admonition-title">知识扩展</p>
+<p>** 知识点一：MySQL 常见排序模式：**</p>
+<ol>
+<li>&lt; sort_key, rowid &gt;双路排序（又叫回表排序模式）：是首先根据相应的条件取出相应的排序字段和可以直接定位行数据的行 ID，然后在 sort buffer 中进行排序，排序完后需要再次取回其它需要的字段；</li>
+<li>&lt; sort_key, additional_fields &gt;单路排序：是一次性取出满足条件行的所有字段，然后在sort buffer中进行排序；</li>
+<li>&lt; sort_key, packed_additional_fields &gt;打包数据排序模式：将 char 和 varchar 字段存到 sort buffer 中时，更加紧缩。</li>
+</ol>
+<p>三种排序模式比较：</p>
+<p>第二种模式相对第一种模式，避免了二次回表，可以理解为用空间换时间。由于 sort buffer 有限，如果需要查询的数据比较大的话，会增加磁盘排序时间，效率可能比第一种方式更低。</p>
+<p>MySQL 提供了一个参数：max_length_for_sort_data，当“排序的键值对大小” &gt; max_length_for_sort_data 时，MySQL 认为磁盘外部排序的 IO 效率不如回表的效率，会选择第一种排序模式；否则，会选择第二种模式。</p>
+<p>第三种模式主要解决变长字符数据存储空间浪费的问题。</p>
+<p>** 知识点二：优化器在估计符合条件的行数时有两个选择：**</p>
+<ul>
+<li>index diver：dive 到 index 中利用索引完成元组数的估算；特点是速度慢，但可以得到精确的值；</li>
+<li>index statistics：使用索引的统计数值，进行估算；特点是速度快，但是值不一定准确。</li>
+</ul>
+</div>
+<h2 id="3">3. 总结<a class="headerlink" href="#3" title="Permanent link">&para;</a></h2>
+<p>今天我们分享了 show profile 和 trace 的使用方法，我们来对比一下三种分析 SQL 方法的特点：</p>
+<ul>
+<li>explain：获取 MySQL 中 SQL 语句的执行计划，比如语句是否使用了关联查询、是否使用了索引、扫描行数等；</li>
+<li>profile：可以清楚了解到SQL到底慢在哪个环节；</li>
+<li>trace：查看优化器如何选择执行计划，获取每个可能的索引选择的代价。</li>
+</ul>
+<p>三种方法各有其适用场景，如果你有其它分析 SQL 的工具，欢迎在留言区分享。</p>
+                
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../01-02/" title="02-快速学会分析SQL执行效率（上）" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
+            </div>
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                02-快速学会分析SQL执行效率（上）
+              </span>
+            </div>
+          </a>
+        
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy; 2019 Square, Inc.
+          </div>
+        
+        powered by
+        <a href="https://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+  <div class="md-footer-social">
+    <link rel="stylesheet" href="../../../assets/fonts/font-awesome.css">
+    
+      <a href="https://www.wumingsheng.gitbook.io" class="md-footer-social__link fa fa-gitbook"></a>
+    
+      <a href="https://www.baidu.com" class="md-footer-social__link fa fa-baidu"></a>
+    
+      <a href="https://www.google.com" class="md-footer-social__link fa fa-google"></a>
+    
+  </div>
+
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../../assets/javascripts/application.245445c6.js"></script>
+      
+      <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
+      
+    
+  </body>
+</html>
