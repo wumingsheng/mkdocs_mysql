@@ -15,6 +15,7 @@ nav:
     - 1. SQL优化:
       - 01-开篇词: imooc/mysql/01-01.md
       - 02-快速学会分析SQL执行效率（上）: imooc/mysql/01-02.md
+      - 03-快速学会分析SQL执行效率（下）: imooc/mysql/01-03.md
 # theme: mkdocs
 
 # pip install mkdocs-material
